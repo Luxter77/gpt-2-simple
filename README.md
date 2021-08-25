@@ -144,3 +144,21 @@ MIT
 ## Disclaimer
 
 This repo has no affiliation or relationship with OpenAI.
+
+## UPDATE TO TFv2
+
+I Jerry-rigged and hard coded the missing/deprecated parts from tensorflow-v1 into the graph-editor folder and it works... kinda
+
+My point is, it's not perfect and you shouldn't use it, but if you do and it works, please tell me
+
+![At least i'm studiying for it](https://i.pinimg.com/originals/e4/36/e0/e436e09ca28f4efdea21ad28ec3e8652.jpg)
+![My Metodology](https://i.imgur.com/qmzPLLq.jpg)
+
+The \(now\) hardcoded code came from this library:
+
+## TensorFlow Graph Editor
+
+The TensorFlow Graph Editor library allows for modification of an existing tf.Graph instance in-place.
+
+The original author's github username is [purpledog](https://github.com/purpledog).
+Modifications done by [luxter77](https://github.com/luxter77)

@@ -47,14 +47,14 @@ NB: *Restart the Python session first* if you want to finetune on another datase
 setup(
     name="gpt_2_simple",
     packages=["gpt_2_simple"],  # this must be the same as the name above
-    version="0.7.2",
+    version="0.8.0beta",
     description="Python package to easily retrain OpenAI's GPT-2 "
     "text-generating model on new texts.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="Max Woolf",
     author_email="max@minimaxir.com",
-    url="https://github.com/minimaxir/gpt-2-simple",
+    url="https://github.com/Luxter77/gpt-2-simple",
     keywords=["deep learning", "tensorflow", "text generation"],
     classifiers=[],
     license="MIT",

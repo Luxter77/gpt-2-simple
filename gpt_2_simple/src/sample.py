@@ -84,7 +84,8 @@ def sample_sequence(*, hparams, length, start_token=None,
         def cond(*args):
             return True
 
-        _, _, tokens = tf.while_loop(
+        _, _, tokens = tf.nest.map_structure(
+            tf.stop_gradient, tf.while_loop(
             cond=cond, body=body,
             maximum_iterations=length,
             loop_vars=[
@@ -97,8 +98,8 @@ def sample_sequence(*, hparams, length, start_token=None,
                     hparams=hparams, batch_size=batch_size)),
                 tf.TensorShape([batch_size]),
                 tf.TensorShape([batch_size, None]),
-            ],
-            back_prop=False,
+            ]
+            )
         )
 
         return tokens
