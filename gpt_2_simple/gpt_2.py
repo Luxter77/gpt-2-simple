@@ -8,7 +8,7 @@ import re
 from tqdm import tqdm, trange
 import numpy as np
 import tensorflow as tf
-from tensorflow.core.protobuf import rewriter_config_pb2
+from tensorflow.core.protobuf import rewriter_config_pb2 
 from tensorflow.python.client import device_lib
 import time
 from datetime import datetime
@@ -24,10 +24,6 @@ except:
 from gpt_2_simple.src import model, sample, encoder, memory_saving_gradients
 from gpt_2_simple.src.load_dataset import load_dataset, Sampler
 from gpt_2_simple.src.accumulate import AccumulatingOptimizer
-
-assert tf.__version__ > '2.0.0', "gpt-2-simple-v2 currently only supports " \
-    "TensorFlow 2.0. You'll need to use a virtualenv/cloud computer which " \
-    "has Tensorflow 2.X on it."
 
 
 def download_file_with_progress(url_base, sub_dir, model_name, file_name):
