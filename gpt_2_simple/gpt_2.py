@@ -120,29 +120,30 @@ def get_available_gpus():
     local_device_protos = device_lib.list_local_devices()
     return [x.name for x in local_device_protos if x.device_type == 'GPU']
 
-def finetune(sess,
-             dataset,
-             steps=-1,
-             model_name='124M',
-             model_dir='models',
-             combine=50000,
-             batch_size=1,
-             learning_rate=0.0001,
-             accumulate_gradients=5,
-             restore_from='latest',
-             run_name='run1',
-             checkpoint_dir='checkpoint',
-             sample_every=100,
-             sample_length=1023,
-             sample_num=1,
-             multi_gpu=False,
-             save_every=1000,
-             print_every=1,
-             max_checkpoints=1,
-             use_memory_saving_gradients=False,
-             only_train_transformer_layers=False,
-             optimizer='adam',
-             overwrite=False):
+def finetune(sess: tf.compat.v1.Session,
+             dataset: os.PathLike,
+             steps: int = -1,
+             model_name: str = '124M',
+             model_dir: os.PathLike = 'models',
+             combine: int = 50000,
+             batch_size : int = 1,
+             learning_rate: float = 0.0001,
+             accumulate_gradients = 5,
+             restore_from: str = 'latest',
+             run_name : str = 'run1',
+             checkpoint_dir: os.PathLike = 'checkpoint',
+             sample_every: int = 100,
+             sample_length: int = 1023,
+             sample_num: int = 1,
+             multi_gpu: bool = False,
+             save_every: int = 1000,
+             print_every: int = 1,
+             max_checkpoints: int = 1,
+             use_memory_saving_gradients: bool = False,
+             only_train_transformer_layers: bool = False,
+             optimizer: str = 'adam',
+             overwrite: bool = False,
+             allow_huge: bool = False):
     """Finetunes the model on the given dataset.
 
     Adapted from https://github.com/nshepperd/gpt-2/blob/finetuning/train.py.
@@ -180,7 +181,7 @@ def finetune(sess,
         raise ValueError(
             "Can't get samples longer than window size: %s" % hparams.n_ctx)
 
-    if model_name not in ['117M', '124M']:
+    if (model_name not in ['117M', '124M']) or allow_huge:
         use_memory_saving_gradients = True
         only_train_transformer_layers = True
         accumulate_gradients = 1
@@ -231,7 +232,12 @@ def finetune(sess,
         opt_apply = opt.apply_gradients(opt_grads)
         summary_loss = tf.compat.v1.summary.scalar('loss', loss)
 
-    summary_log = tf.compat.v1.summary.FileWriter(checkpoint_path)
+
+    summary_path = os.path.join(checkpoint_path, 'summary')
+    if not os.path.exists(summary_path): 
+        os.mkdirs(summary_path)
+
+    summary_log = tf.compat.v1.summary.FileWriter(summary_path)
 
     saver = tf.compat.v1.train.Saver(
         var_list=all_vars,
