@@ -89,7 +89,7 @@ def download_gpt2(model_dir='models', model_name='124M'):
                                     file_name=file_name)
 
 
-def start_tf_sess(threads=-1, server=None) -> tf.Session:
+def start_tf_sess(threads=-1, server=None) -> tf.compat.v1.Session:
     """
     Returns a tf.Session w/ config
     """
