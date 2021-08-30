@@ -26,7 +26,7 @@ from six import string_types
 from . import util
 from tensorflow.python.ops import op_selector  #pylint:disable=no-name-in-module
 from tensorflow.python.framework import ops as tf_ops  #pylint:disable=no-name-in-module
-from tensorflow.python.util import deprecation  #pylint:disable=no-name-in-module
+#from tensorflow.python.util import deprecation  #pylint:disable=no-name-in-module
 
 
 
@@ -456,10 +456,10 @@ def get_forward_walk_ops(seed_ops,
   return result
 
 
-@deprecation.deprecated(
-    "2019-06-06",
-    "Please use tensorflow.python.ops.op_selector.get_backward_walk_ops.",
-    warn_once=True)
+#@deprecation.deprecated(
+#    "2019-06-06",
+#    "Please use tensorflow.python.ops.op_selector.get_backward_walk_ops.",
+#    warn_once=True)
 def get_backward_walk_ops(seed_ops,
                           inclusive=True,
                           within_ops=None,
