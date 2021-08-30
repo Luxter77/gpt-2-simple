@@ -325,8 +325,8 @@ def finetune(sess: tf.compat.v1.Session,
 
     if steps:
         steps = int(steps)
-    
-    pbar = tqdm(train_counter(), leave=True, desc="[Loss], [avg]")
+
+    pbar = tqdm(train_counter(), leave=True, total=(steps if (steps > 0) else None), desc="[Loss], [avg]")
 
     try:
         for _ in pbar:
