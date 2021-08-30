@@ -5,7 +5,7 @@ import requests
 import sys
 import shutil
 import re
-from tqdm import tqdm, trange
+from tqdm.auto import tqdm, trange
 import numpy as np
 import tensorflow as tf
 from tensorflow.core.protobuf import rewriter_config_pb2 
@@ -89,7 +89,7 @@ def download_gpt2(model_dir='models', model_name='124M'):
                                     file_name=file_name)
 
 
-def start_tf_sess(threads=-1, server=None):
+def start_tf_sess(threads=-1, server=None) -> tf.Session:
     """
     Returns a tf.Session w/ config
     """
@@ -274,33 +274,30 @@ def finetune(sess: tf.compat.v1.Session,
     counter_base = counter
 
     def save():
-        maketree(checkpoint_path)
-        print(
-            'Saving',
-            os.path.join(checkpoint_path,
-                         'model-{}').format(counter-1))
-        saver.save(
-            sess,
-            os.path.join(checkpoint_path, 'model'),
-            global_step=counter-1)
-        with open(counter_path, 'w') as fp:
-            fp.write(str(counter-1) + '\n')
+        for _ in tqdm(([None]), leave=False, desc="Saving checkpoint"):
+            maketree(checkpoint_path)
+            tqdm.write(
+                'Saving',
+                os.path.join(checkpoint_path, f'model-{counter-1}').format())
+            saver.save(
+                sess,
+                os.path.join(checkpoint_path, 'model'),
+                global_step=counter-1)
+            with open(counter_path, 'w') as fp:
+                fp.write(str(counter-1) + '\n')
 
     def generate_samples():
         context_tokens = data_sampler.sample(1)
         all_text = []
-        index = 0
-        while index < sample_num:
-            out = sess.run(
-                tf_sample,
-                feed_dict={context: batch_size * [context_tokens]})
-            for i in range(min(sample_num - index, batch_size)):
+        for index in trange(0, sample_num, leave=False, desc="Generating samples"):
+            out = sess.run(tf_sample, feed_dict={context: batch_size * [context_tokens]})
+            for i in trange(min(sample_num - index, batch_size), leave=False, desc=f"Generating sample #{index}"):
                 text = enc.decode(out[i])
                 text = '======== SAMPLE {} ========\n{}\n'.format(
                     index + 1, text)
                 all_text.append(text)
                 index += 1
-        print(text)
+        tqdm.write(text)
         maketree(os.path.join(SAMPLE_DIR, run_name))
         with open(
                 os.path.join(SAMPLE_DIR, run_name,
@@ -311,6 +308,17 @@ def finetune(sess: tf.compat.v1.Session,
     def sample_batch():
         return [data_sampler.sample(1024) for _ in range(batch_size)]
 
+    def train_counter():
+        while True:
+            if steps > 0 and counter == (counter_base + steps):
+                save()
+                break
+            if (counter - 1) % save_every == 0 and counter > 1:
+                save()
+            if (counter - 1) % sample_every == 0 and counter > 1:
+                generate_samples()
+            yield
+
     if overwrite and restore_from == 'latest':
         for file in files:
             if file.startswith('model') or file.startswith('events'):
@@ -318,21 +326,14 @@ def finetune(sess: tf.compat.v1.Session,
         save()
 
     avg_loss = (0.0, 0.0)
-    start_time = time.time()
 
     if steps:
         steps = int(steps)
     
-    try:
-        while True:
-            if steps > 0 and counter == (counter_base + steps):
-                save()
-                return
-            if (counter - 1) % save_every == 0 and counter > 1:
-                save()
-            if (counter - 1) % sample_every == 0 and counter > 1:
-                generate_samples()
+    pbar = tqdm(train_counter(), leave=True, desc="[Loss], [avg]")
 
+    try:
+        for _ in pbar:
             if accumulate_gradients > 1:
                 sess.run(opt_reset)
                 for _ in range(accumulate_gradients):
@@ -350,15 +351,15 @@ def finetune(sess: tf.compat.v1.Session,
                 avg_loss = (avg_loss[0] * 0.99 + v_loss,
                             avg_loss[1] * 0.99 + 1.0)
 
-                print(
-                    '[{counter} | {time:2.2f}] loss={loss:2.2f} avg={avg:2.2f}'
+                pbar.set_description(
+                    desc='[loss={loss:2.2f} avg={avg:2.2f}]'
                     .format(
-                        counter=counter,
-                        time=time.time() - start_time,
                         loss=v_loss,
-                        avg=avg_loss[0] / avg_loss[1]))
+                        avg=avg_loss[0] / avg_loss[1])
+                    )
 
             counter += 1
+            pbar.update(counter)
     except KeyboardInterrupt:
         print('interrupted')
         save()
