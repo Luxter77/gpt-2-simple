@@ -276,9 +276,7 @@ def finetune(sess: tf.compat.v1.Session,
     def save():
         for _ in tqdm(([None]), leave=False, desc="Saving checkpoint"):
             maketree(checkpoint_path)
-            tqdm.write(
-                'Saving',
-                os.path.join(checkpoint_path, f'model-{counter-1}').format())
+            tqdm.write('Saving ' + os.path.join(checkpoint_path, f'model-{counter-1}').format())
             saver.save(
                 sess,
                 os.path.join(checkpoint_path, 'model'),
