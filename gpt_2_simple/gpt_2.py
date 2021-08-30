@@ -277,9 +277,7 @@ def finetune(sess: tf.compat.v1.Session,
         for _ in tqdm(([None]), leave=False, desc="Saving checkpoint"):
             maketree(checkpoint_path)
             tqdm.write('Saving ' + os.path.join(checkpoint_path, f'model-{counter-1}').format())
-            saver.save(
-                sess,
-                os.path.join(checkpoint_path, 'model'),
+            saver.save(sess, os.path.join(checkpoint_path, 'model'),
                 global_step=counter-1)
             with open(counter_path, 'w') as fp:
                 fp.write(str(counter-1) + '\n')
@@ -357,7 +355,6 @@ def finetune(sess: tf.compat.v1.Session,
                     )
 
             counter += 1
-            pbar.update(counter)
     except KeyboardInterrupt:
         print('interrupted')
         save()
